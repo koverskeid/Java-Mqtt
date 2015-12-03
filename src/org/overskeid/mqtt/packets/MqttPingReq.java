@@ -16,5 +16,11 @@ public class MqttPingReq extends MqttMessage{
 		this.message[1] = byte2;
 	}
 
+	@Override
+	void formatMessage() {
+		// TODO Auto-generated method stub
+		
+	}
+
 	
 }

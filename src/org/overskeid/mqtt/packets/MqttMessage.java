@@ -11,10 +11,10 @@ public abstract class MqttMessage {
     }
 
     protected static final int maxRemainingLength = 268435455;
-    public static final int maxPacketIdNb = 2^16;
+    public static final int maxPacketIdNb = 65536;
     private boolean ackRequired;
     protected byte[] message;
-    protected int packetIdentifier;
+    protected Integer packetIdentifier = null;
 
     public MqttMessage(boolean ackRequired) {
         this.ackRequired = ackRequired;
@@ -23,10 +23,12 @@ public abstract class MqttMessage {
     public MqttMessage(boolean ackRequired, int packetIdentifier) {
     	this.ackRequired = ackRequired;
     	this.packetIdentifier = packetIdentifier;
+    	createMessage();
     }
     
     public MqttMessage(byte[] message) {
     	this.message = message;
+    	formatMessage();
     }
 
     protected byte[] createRemainingLengthField(int remainingLength) {
@@ -83,11 +85,16 @@ public abstract class MqttMessage {
     
     protected abstract void createMessage();
     
-    public void setPacketIdentifier(int packetId) {packetIdentifier = packetId;}
-    public int getPacketIdentifier() {return packetIdentifier;}
+    public Integer getPacketIdentifier() {return packetIdentifier;}
 
     public byte[] getBytes() {
         createMessage();
         return this.message;
     }
+    
+	abstract void formatMessage();
+	
+	public void setPacketIdentifier(int packetId) {
+		this.packetIdentifier = packetId;
+	}
 }

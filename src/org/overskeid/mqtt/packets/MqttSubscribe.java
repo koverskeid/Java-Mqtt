@@ -8,20 +8,6 @@ import java.util.ArrayList;
 
 public class MqttSubscribe extends MqttMessage{
 	
-	public class Subscription {
-		private String topic;
-		private int maxQos;
-		public Subscription(String topic, int maxQos) {
-			this.topic = topic;
-			this.maxQos = maxQos;
-		}
-		public Subscription(String topic) {
-			this.topic = topic;
-			this.maxQos = -1;
-		}
-		public String getTopic() {return topic;}
-		public int getMaxQos() {return maxQos;}
-	}
 	
 	private static final boolean ackRequired = true;
     private static final byte byte1 = (byte) (130 & 0xFF);
@@ -57,10 +43,14 @@ public class MqttSubscribe extends MqttMessage{
        addRemainingLengthField(remainingLength,message);
     }
 
-    public String[] getSubscriptions() {
-        String[] topics = new String[this.subscriptions.size()];
-        for(int i=0;i < this.subscriptions.size();i++)
-            topics[i] = this.subscriptions.get(i).getTopic();
-        return topics;
+    public Subscription[] getSubscriptions() {
+        Subscription[] subscriptions = new Subscription[this.subscriptions.size()];
+    	return this.subscriptions.toArray(subscriptions);
     }
+
+	@Override
+	void formatMessage() {
+		// TODO Auto-generated method stub
+		
+	}
 }

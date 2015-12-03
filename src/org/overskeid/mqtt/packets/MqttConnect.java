@@ -105,4 +105,10 @@ public class MqttConnect extends MqttMessage{
     public void setCleanSession(boolean cleanSession) {
         this.cleanSession = cleanSession;
     }
+
+	@Override
+	void formatMessage() {
+		// TODO Auto-generated method stub
+		
+	}
 }

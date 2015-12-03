@@ -6,16 +6,17 @@ import java.util.ArrayList;
 public class MqttUnsubsribe extends MqttMessage {
 	private static final byte byte1 = (byte) (162 & 0xFF);
 	private static final boolean ackRequired = true;
-	private String[] topics;
+	private ArrayList<String> topics = new ArrayList<String>();
 	
 	public MqttUnsubsribe(String topic) {
 		super(ackRequired);
-		this.topics[0] = topic;
+		this.topics.add(topic);
 	}
 	
 	public MqttUnsubsribe(String[] topics) {
 		super(ackRequired);
-		this.topics = topics;
+		for(String s : topics)
+		this.topics.add(s);
 	}
 	
 	@Override
@@ -32,6 +33,12 @@ public class MqttUnsubsribe extends MqttMessage {
 	     addRemainingLengthField(remainingLength,message);
 	}
 	
-	public String[] getTopics() {return topics;}
+	public String[] getTopics() {return topics.toArray(new String[topics.size()]);}
+
+	@Override
+	void formatMessage() {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

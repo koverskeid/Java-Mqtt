@@ -3,7 +3,7 @@ package org.overskeid.mqtt.packets;
 /**
  * Created by Kristian on 20.11.2015.
  */
-public class MqttConnAck extends MqttAck{
+public class MqttConnAck extends MqttMessage{
 
     public enum ReturnCode {
         CONNECTION_ACCEPTED, UACCEPTABLE_PROTOCOL_VERSION, IDENTIFIER_REJECTED, SERVER_UNAVAILABLE, BAD_USER_NAME_OR_PASSWORD, NOT_AUTHORIZED
@@ -11,10 +11,10 @@ public class MqttConnAck extends MqttAck{
 
     private ReturnCode returnCode;
     private boolean sessionPreset;
-    private byte[] message;
 
     public MqttConnAck(byte[] message) {
         super(message);
+        formatMessage();
     }
     
 	@Override
@@ -43,5 +43,11 @@ public class MqttConnAck extends MqttAck{
     public boolean isSessionPreset() {return sessionPreset;}
 
     public ReturnCode getReturnCode() {return returnCode;}
+
+	@Override
+	protected void createMessage() {
+		// only incoming
+		
+	}
 
 }

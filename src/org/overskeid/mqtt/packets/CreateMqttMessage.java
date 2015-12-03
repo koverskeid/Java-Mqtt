@@ -14,9 +14,9 @@ public class CreateMqttMessage {
             case 2: return new MqttConnAck(message);
             case 3: return new MqttPublish(message);
             case 4: return new MqttPubAck(message);
-            case 5: return null; //pubrec
-            case 6: return null; //pubrel
-            case 7: return null; //pubcomp
+            case 5: return new MqttPubRec(message);
+            case 6: return new MqttPubRel(message);
+            case 7: return new MqttPubComp(message);
             case 8: return null; //subscribe - only outgoing
             case 9: return new MqttSubAck(message);
             case 10: return null; //unsubscribe - only outgoing

@@ -1,4 +1,4 @@
-package org.overskeid.mqtt.streams;
+package org.overskeid.mqtt.service;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.net.Socket;
 
 import org.overskeid.mqtt.packets.CreateMqttMessage;
-import org.overskeid.mqtt.service.MqttCommonucationHandler;
 
 /**
  * Created by Kristian on 07.11.2015.
@@ -31,7 +30,7 @@ public class MqttInStream implements Runnable{
             inStream = socket.getInputStream();
             dataInStream = new DataInputStream(inStream);
             byte [] message;
-            while (socket!=null) {
+            while (inStream!=null) {
                 byte byte1 = dataInStream.readByte();
                 int remainingLength = readRemainingLengthField();
                 message = new byte[remainingLength+1];
@@ -43,9 +42,11 @@ public class MqttInStream implements Runnable{
 
             }
         } catch (IOException e) {
-            e.printStackTrace();
+        	 e.printStackTrace();
+        	 System.out.println("closing inStream");
         } catch (InterruptedException e) {
-            e.printStackTrace();
+        	 e.printStackTrace();
+        	 System.out.println("closing inStream");
         }
     }
 
@@ -65,12 +66,13 @@ public class MqttInStream implements Runnable{
     }
 
     public void stop() {
-        try {
-            socket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        socket = null;
+    	try {
+			socket.shutdownInput();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        inStream = null;
     }
 
     public void setSocket(Socket socket){

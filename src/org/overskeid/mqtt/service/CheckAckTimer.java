@@ -33,10 +33,13 @@ public class CheckAckTimer{
             }
         };
         timer.schedule(alert, delay);
-        System.out.println("Started timer with delay = "+ delay);
     }
 
     public void cancel() {
         timer.cancel();
+    }
+    
+    public Object getMessage() {
+    	return message;
     }
 }

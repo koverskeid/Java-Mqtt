@@ -26,27 +26,8 @@ public class MqttPublish extends MqttMessage{
 
     public MqttPublish(byte[] message) { //incoming
         super(message);
-        formatMessage();
     }
 
-    private void formatMessage () {
-        String binary = String.format("%8s", Integer.toBinaryString(message[0] & 0xFF)).replace(' ', '0');
-        this.duplicate = binary.substring(4,5).equals("1");
-        qos = Integer.parseInt(binary.substring(5, 7));
-        retain = binary.substring(7).equals("1");
-        try {
-            int remainingLength = remainingLength(1);
-            topic = new String(Arrays.copyOfRange(message, 3, remainingLength + 3), "UTF-8");
-            if(qos==0)
-                payload = new String(Arrays.copyOfRange(message, 3+remainingLength,message.length), "UTF-8");
-            else {
-                payload = new String(Arrays.copyOfRange(message, 3+remainingLength,message.length-2), "UTF-8");
-                packetIdentifier = getPacketId(message.length-2);
-            }
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-    }
 
     @Override
     protected void createMessage() {
@@ -67,6 +48,9 @@ public class MqttPublish extends MqttMessage{
         //Fixed header - remaining length field;
         int remainingLength = message.size()-1;
         addRemainingLengthField(remainingLength,message);
+        String.format("%8s", Integer.toBinaryString(this.message[0] & 0xFF)).replace(' ', '0');
+        for(byte b: this.message)
+        	System.out.print((b & 0xFF) +",");
     }
 
     private byte createByte1() {
@@ -75,6 +59,7 @@ public class MqttPublish extends MqttMessage{
         stringBuilder.insert(4, (String.format("%1s", Integer.toBinaryString((duplicate) ? 1:0 & 0xFF)).replace(' ', '0')));
         stringBuilder.insert(5, (String.format("%2s", Integer.toBinaryString(qos & 0xFF)).replace(' ', '0')));
         stringBuilder.insert(7, (String.format("%1s", Integer.toBinaryString((retain) ? 1 : 0 & 0xFF)).replace(' ', '0')));
+        System.out.println("byte1: "+ stringBuilder.toString());
         return (byte) (Integer.parseInt(stringBuilder.toString(), 2) & 0xff);
     }
 
@@ -105,4 +90,27 @@ public class MqttPublish extends MqttMessage{
     public boolean isDuplicate() {
         return duplicate;
     }
+
+	@Override
+	void formatMessage() {
+		String binary = String.format("%8s", Integer.toBinaryString(message[0] & 0xFF)).replace(' ', '0');
+		System.out.println(binary);
+        this.duplicate = binary.substring(4,5).equals("1");
+        qos = Integer.parseInt(binary.substring(5, 7));
+        for(byte b:message)
+        	System.out.print((b & 0xFF) +",");
+        retain = binary.substring(7).equals("1");
+        try {
+            int remainingLength = remainingLength(1);
+            topic = new String(Arrays.copyOfRange(message, 3, remainingLength + 3), "UTF-8");
+            if(qos==0)
+                payload = new String(Arrays.copyOfRange(message, 3+remainingLength,message.length), "UTF-8");
+            else {
+                payload = new String(Arrays.copyOfRange(message, 3+remainingLength,message.length-2), "UTF-8");
+                packetIdentifier = getPacketId(message.length-2);
+            }
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+	}
 }
