@@ -61,7 +61,7 @@ public class MqttCommonucationHandler implements Runnable {
             outStream = new MqttOutStream(socket);
             new Thread(inStream).start();
             new Thread(outStream).start();
-            sendMessage(new MqttConnect(clientId));
+            send(new MqttConnect(clientId));
         } catch (UnknownHostException e) {
             //System.out.println("unknown host");
             e.printStackTrace();
@@ -143,7 +143,7 @@ public class MqttCommonucationHandler implements Runnable {
 				}
 				else if(publish.getQos()==1) {
 					//System.out.println("qos: "+publish.getQos());
-					sendMessage(new MqttPubAck(publish.getPacketIdentifier()));
+					send(new MqttPubAck(publish.getPacketIdentifier()));
 					putPublishMessage(publish);
 				}
 				else if(publish.getQos()==2) {
@@ -152,7 +152,7 @@ public class MqttCommonucationHandler implements Runnable {
 						receivedQos2Messages.add(packetId);
 						//System.out.println("Adding to receivedMessages: "+packetId);
 						putPublishMessage(publish);
-						sendMessage(new MqttPubRec(packetId));
+						send(new MqttPubRec(packetId));
 					}
 				}
 					
@@ -181,7 +181,7 @@ public class MqttCommonucationHandler implements Runnable {
     	registerAck(packetId);
     	//System.out.println("Received pubRec: " +packetId);
     	try {
-			sendMessage(new MqttPubRel(packetId));
+			send(new MqttPubRel(packetId));
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -203,7 +203,7 @@ public class MqttCommonucationHandler implements Runnable {
     	}
     		
     	try {
-			sendMessage(new MqttPubComp(packetId));
+			send(new MqttPubComp(packetId));
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -245,7 +245,7 @@ public class MqttCommonucationHandler implements Runnable {
     		message = mqttPublish;
     	}
     	//System.out.println("Resending message with id: "+ packetId);
-    	sendMessage(message);
+    	send(message);
     }
 
     protected void putMessage(Object message) throws InterruptedException {
@@ -299,7 +299,34 @@ public class MqttCommonucationHandler implements Runnable {
     	notify();
     }
 
-    public void sendMessage(Object message) throws InterruptedException {
+    public void sendMessage(String topic, String payload, int qos) {
+    	try {
+			send(new MqttPublish(topic, payload, qos));
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+    }
+    
+    public void subscribeTopic(String topic, int maxQos) {
+    	String[] topics = {topic};
+    	try {
+			send(new MqttSubscribe(topics, maxQos));
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+    
+    public void subscribeTopics(String[] topics, int maxQos) {
+    	try {
+			send(new MqttSubscribe(topics, maxQos));
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+    
+    private void send(Object message) throws InterruptedException {
         MqttMessage mqttMessage = (MqttMessage) message;
         if(mqttMessage.isAckRequired()) {
         	Integer packetId = mqttMessage.getPacketIdentifier();;

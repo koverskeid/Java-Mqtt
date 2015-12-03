@@ -7,16 +7,16 @@ import org.overskeid.mqtt.service.MqttCommonucationHandler;
 public class Test {
 
 	public static void main(String[] args) {
-		MqttCommonucationHandler communicationHandler = new MqttCommonucationHandler("test.mosquitto.org", 1883, "KristianLaptop1");
+		MqttCommonucationHandler communicationHandler = new MqttCommonucationHandler("test.mosquitto.org", 1883, "KristianStasjo");
 		new Thread(communicationHandler).start();
 		try {
 			communicationHandler.waitForConnection();
 			System.out.println("Connection Established");
 			//communicationHandler.sendMessage(new MqttSubscribe("kristian/#", 0));
-			//communicationHandler.sendMessage(new MqttSubscribe("kristian/test", 2));
-			communicationHandler.setRTT(10);
-			communicationHandler.sendMessage(new MqttPublish("kristian/test", "test4", 2));
-			System.out.println(communicationHandler.receiveMessage().getPayload());
+			communicationHandler.subscribeTopic("kristian/test", 2);
+			communicationHandler.sendMessage("kristian/test", "test1", 2);
+			while(true)
+				System.out.println(communicationHandler.receiveMessage().getPayload());
 			//System.out.println("topics:");
 			//for(String s : communicationHandler.getSubscribedTopics())
 				//System.out.println(s);

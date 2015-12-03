@@ -13,17 +13,11 @@ public class MqttSubscribe extends MqttMessage{
     private static final byte byte1 = (byte) (130 & 0xFF);
     private ArrayList<Subscription> subscriptions;
 
-    public MqttSubscribe(String topic, int maxQos) {
+    public MqttSubscribe(String[] topics, int maxQos) {
         super(ackRequired);
         this.subscriptions = new ArrayList<Subscription>();
-        this.subscriptions.add(new Subscription(topic, maxQos));
-    }
-
-    public MqttSubscribe(Subscription[] subscriptions) {
-        super(ackRequired);
-        this.subscriptions = new ArrayList<Subscription>();
-        for(Subscription s : subscriptions)
-            this.subscriptions.add(s);
+        for(String topic : topics)
+            this.subscriptions.add(new Subscription(topic,maxQos));
     }
 
     @Override
