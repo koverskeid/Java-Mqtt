@@ -32,7 +32,7 @@ import org.overskeid.mqtt.packets.Subscription;
  */
 public class MqttCommonucationHandler implements Runnable {
     private static final int MAXQUEUE = 10;
-    private static final long expectedRTT = 1000;
+    private int expectedRTT = 1000;
     private Vector<Object> messages = new Vector<Object>();
     private Vector<MqttPublish> publishMessages = new Vector<MqttPublish>();
     private String address;
@@ -338,6 +338,10 @@ public class MqttCommonucationHandler implements Runnable {
     
     public String[] getSubscribedTopics() {
     	return subscribedTopics.keySet().toArray(new String[subscribedTopics.size()]);		
+    }
+    
+    public void setRTT(int rtt) {
+    	this.expectedRTT = rtt;
     }
 
 }
