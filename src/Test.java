@@ -13,8 +13,9 @@ public class Test {
 			communicationHandler.waitForConnection();
 			System.out.println("Connection Established");
 			//communicationHandler.sendMessage(new MqttSubscribe("kristian/#", 0));
-			communicationHandler.sendMessage(new MqttSubscribe("kristian/test", 2));
-			//communicationHandler.sendMessage(new MqttPublish("kristian/test", "test1", 2));
+			//communicationHandler.sendMessage(new MqttSubscribe("kristian/test", 2));
+			communicationHandler.setRTT(10);
+			communicationHandler.sendMessage(new MqttPublish("kristian/test", "test4", 2));
 			System.out.println(communicationHandler.receiveMessage().getPayload());
 			//System.out.println("topics:");
 			//for(String s : communicationHandler.getSubscribedTopics())
