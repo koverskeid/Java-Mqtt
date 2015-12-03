@@ -63,7 +63,7 @@ public class MqttCommonucationHandler implements Runnable {
             new Thread(outStream).start();
             sendMessage(new MqttConnect(clientId));
         } catch (UnknownHostException e) {
-            System.out.println("unknown host");
+            //System.out.println("unknown host");
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
@@ -119,7 +119,7 @@ public class MqttCommonucationHandler implements Runnable {
 
     private void processSubAck(Object message) {
         MqttSubAck subAck = (MqttSubAck) message;
-        System.out.println("received subAck: "+subAck.getPacketIdentifier());
+        //System.out.println("received subAck: "+subAck.getPacketIdentifier());
         MqttSubscribe mqttSubscribe = (MqttSubscribe) registerAck(subAck.getPacketIdentifier());
         Subscription[] subscriptions = mqttSubscribe.getSubscriptions();
         Integer[] returnCodes = subAck.getReturnCodes();
@@ -135,24 +135,24 @@ public class MqttCommonucationHandler implements Runnable {
     private void processPublish(Object message) {
         MqttPublish publish = (MqttPublish) message;
         System.out.println("Received message with id: "+publish.getPacketIdentifier());
-        System.out.println("qos: "+publish.getQos());
+        //System.out.println("qos: "+publish.getQos());
 			try {
 				if(publish.getQos()==0) {
-					System.out.println("qos: "+publish.getQos());
+					//System.out.println("qos: "+publish.getQos());
 					putPublishMessage(publish);
 				}
 				else if(publish.getQos()==1) {
-					System.out.println("qos: "+publish.getQos());
+					//System.out.println("qos: "+publish.getQos());
 					sendMessage(new MqttPubAck(publish.getPacketIdentifier()));
 					putPublishMessage(publish);
 				}
 				else if(publish.getQos()==2) {
 					int packetId = publish.getPacketIdentifier();
 					if(!receivedQos2Messages.contains(packetId)) {
-						sendMessage(new MqttPubRec(packetId));
-						putPublishMessage(publish);
 						receivedQos2Messages.add(packetId);
-						System.out.println("Adding to receivedMessages: "+packetId);
+						//System.out.println("Adding to receivedMessages: "+packetId);
+						putPublishMessage(publish);
+						sendMessage(new MqttPubRec(packetId));
 					}
 					else
 						System.out.println("Message already in receivedMessages: "+packetId);
@@ -198,7 +198,8 @@ public class MqttCommonucationHandler implements Runnable {
     	for(Integer i :receivedQos2Messages) {
     		if(i.equals(packetId)) {
     			receivedQos2Messages.remove(i);
-    			System.out.println("Removed from receivedMessages: "+packetId);
+    			////System.out.println("Removed from receivedMessages: "+packetId);
+    			break;
     		}
     		
     	}
@@ -220,9 +221,9 @@ public class MqttCommonucationHandler implements Runnable {
 
     private Object registerAck(int identifier) {
     	CheckAckTimer timer = unacknowledgedMessages.get(identifier);
-    	//System.out.println("cancelling "+identifier);
+    	////System.out.println("cancelling "+identifier);
     	if(timer==null) {
-    		System.out.println("Couldn't find id " + identifier);
+    		//System.out.println("Couldn't find id " + identifier);
     		return null;
     	}
     	else {
@@ -234,7 +235,7 @@ public class MqttCommonucationHandler implements Runnable {
 
     protected void resendMessage(Object message) throws InterruptedException {
     	MqttMessage mqttMessage = (MqttMessage) message;
-    	System.out.println("Resending message with id: "+ mqttMessage.getPacketIdentifier());
+    	//System.out.println("Resending message with id: "+ mqttMessage.getPacketIdentifier());
     	unacknowledgedMessages.remove(mqttMessage.getPacketIdentifier());
     	if(mqttMessage instanceof MqttPublish) {
     		MqttPublish mqttPublish = (MqttPublish) mqttMessage;
@@ -304,11 +305,11 @@ public class MqttCommonucationHandler implements Runnable {
         	else if(packetId == null) { // if packetId is set, the message is retransmitted
         		packetId = generatePacketIdentifier();
         		mqttMessage.setPacketIdentifier(packetId);
-        		System.out.println("Sending message: "+packetId);
+        		//System.out.println("Sending message: "+packetId);
         	}
         	CheckAckTimer ackTimer = new CheckAckTimer(message,expectedRTT,this);
         	unacknowledgedMessages.put(packetId, ackTimer);
-        	System.out.println("putting message in unacknowledgedMessages: "+packetId);
+        	//System.out.println("putting message in unacknowledgedMessages: "+packetId);
         }
         
         if(mqttMessage instanceof MqttDisconnect) {

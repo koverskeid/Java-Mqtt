@@ -30,7 +30,8 @@ public class MqttOutStream implements Runnable {
             outStream = socket.getOutputStream();
             dataOutStream = new DataOutputStream(outStream);
             while(outStream!=null) {
-                dataOutStream.write(getMessage());
+            	byte[] message = getMessage();
+                dataOutStream.write(message);
                 dataOutStream.flush();
             }
             System.out.println("closing outStream");

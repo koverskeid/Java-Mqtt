@@ -49,8 +49,6 @@ public class MqttPublish extends MqttMessage{
         int remainingLength = message.size()-1;
         addRemainingLengthField(remainingLength,message);
         String.format("%8s", Integer.toBinaryString(this.message[0] & 0xFF)).replace(' ', '0');
-        for(byte b: this.message)
-        	System.out.print((b & 0xFF) +",");
     }
 
     private byte createByte1() {
@@ -59,7 +57,6 @@ public class MqttPublish extends MqttMessage{
         stringBuilder.insert(4, (String.format("%1s", Integer.toBinaryString((duplicate) ? 1:0 & 0xFF)).replace(' ', '0')));
         stringBuilder.insert(5, (String.format("%2s", Integer.toBinaryString(qos & 0xFF)).replace(' ', '0')));
         stringBuilder.insert(7, (String.format("%1s", Integer.toBinaryString((retain) ? 1 : 0 & 0xFF)).replace(' ', '0')));
-        System.out.println("byte1: "+ stringBuilder.toString());
         return (byte) (Integer.parseInt(stringBuilder.toString(), 2) & 0xff);
     }
 
@@ -97,14 +94,16 @@ public class MqttPublish extends MqttMessage{
         this.duplicate = binary.substring(4,5).equals("1");
         qos = Integer.parseInt(binary.substring(5, 7),2);
         retain = binary.substring(7).equals("1");
+        int index = 0;
         try {
-            int remainingLength = remainingLength(1);
-            topic = new String(Arrays.copyOfRange(message, 3, remainingLength + 3), "UTF-8");
+            int remainingLength = remainingLength(index+=1);
+            topic = new String(Arrays.copyOfRange(message, index+=2, index+=remainingLength), "UTF-8");
             if(qos==0)
-                payload = new String(Arrays.copyOfRange(message, 3+remainingLength,message.length), "UTF-8");
+                payload = new String(Arrays.copyOfRange(message, index,message.length), "UTF-8");
             else {
-                payload = new String(Arrays.copyOfRange(message, 3+remainingLength,message.length-2), "UTF-8");
-                packetIdentifier = getPacketId(message.length-2);
+            	packetIdentifier = getPacketId(index);
+            	payload = new String(Arrays.copyOfRange(message, index+=2,message.length), "UTF-8");
+                
             }
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
