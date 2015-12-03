@@ -17,7 +17,7 @@ public class MqttConnect extends MqttMessage{
     private boolean userNameFlag;
     private boolean passwordFlag;
     private boolean willRetain;
-    private int willQos;
+    private Integer willQos;
     private boolean willFlag;
     private boolean cleanSession;
     private int keepAlive;
@@ -26,17 +26,18 @@ public class MqttConnect extends MqttMessage{
     private String willMessage;
     private String userName;
     private String password;
-    private byte[] message;
 
-    public MqttConnect(String clientIdentifier) {
+    public MqttConnect(String clientIdentifier, int keepAlive, String username, String password, boolean willRetain, boolean cleanSession, String willTopic, String willMessage, Integer willQos) {
         super(ackRequired);
         this.clientIdentifier = clientIdentifier;
-        this.keepAlive = standardKeepAlive;
-        this.userNameFlag = false;
-        this.passwordFlag = false;
-        this.willRetain = false;
-        this.willFlag = false;
-        this.cleanSession = true;
+        this.keepAlive = keepAlive;
+        this.userName = username;
+        this.password = password;
+        this.willRetain = willRetain;
+        this.cleanSession = cleanSession;
+        this.willTopic = willTopic;
+        this.willMessage = willMessage;
+        this.willQos = willQos;
     }
 
     protected void createMessage() {
@@ -47,6 +48,7 @@ public class MqttConnect extends MqttMessage{
         for(byte b : protocolName)
             message.add(b);
         message.add(protoolLevel);
+        setConnectFlags();
         message.add(createConnectFlagsByte());
         message.add((byte) ((keepAlive >> 8) & 0xFF));
         message.add((byte) (keepAlive & 0xFF));
@@ -63,6 +65,12 @@ public class MqttConnect extends MqttMessage{
         for(int i=0;i<message.size();i++)
             this.message[i] = message.get(i);
         addRemainingLengthField(message.size()-1, message);
+    }
+    
+    private void setConnectFlags() {
+    	userNameFlag = userName!=null;
+    	passwordFlag = password!=null;
+    	willFlag = willTopic!=null;
     }
 
     private byte createConnectFlagsByte() {

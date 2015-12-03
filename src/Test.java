@@ -7,9 +7,10 @@ import org.overskeid.mqtt.service.MqttClient;
 public class Test {
 
 	public static void main(String[] args) {
-		MqttClient mqttClient = new MqttClient("test.mosquitto.org", 1883, "KristianStasjo");
+		MqttClient mqttClient = new MqttClient("test.mosquitto.org", 1883);
 		new Thread(mqttClient).start();
 		try {
+			mqttClient.connect("KristianStasjo");
 			mqttClient.waitForConnection();
 			System.out.println("Connection Established");
 			//mqttClient.sendMessage(new MqttSubscribe("kristian/#", 0));
