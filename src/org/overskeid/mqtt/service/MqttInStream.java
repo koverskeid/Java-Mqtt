@@ -17,9 +17,9 @@ public class MqttInStream implements Runnable{
     private Socket socket = null;
     private InputStream inStream;
     private DataInputStream dataInStream = null;
-    private MqttCommonucationHandler commonucationHandler;
+    private MqttClient commonucationHandler;
     
-    public MqttInStream(Socket socket, MqttCommonucationHandler communicationHandler) {
+    public MqttInStream(Socket socket, MqttClient communicationHandler) {
     	this.socket = socket;
     	this.commonucationHandler = communicationHandler;
 	}
@@ -79,7 +79,7 @@ public class MqttInStream implements Runnable{
         this.socket = socket;
     }
 
-    public void setCommonucationHandler(MqttCommonucationHandler commonucationHandler) {
+    public void setCommonucationHandler(MqttClient commonucationHandler) {
         this.commonucationHandler = commonucationHandler;
     }
 }

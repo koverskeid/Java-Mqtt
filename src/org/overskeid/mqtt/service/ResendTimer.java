@@ -6,14 +6,14 @@ import java.util.TimerTask;
 /**
  * Created by Kristian on 20.11.2015.
  */
-public class CheckAckTimer{
+public class ResendTimer{
 
     private Object message;
     private long delay;
     private Timer timer;
-    private MqttCommonucationHandler communicationHandler;
+    private MqttClient communicationHandler;
 
-    public CheckAckTimer(Object message, long delay, MqttCommonucationHandler communicationHandler) {
+    public ResendTimer(Object message, long delay, MqttClient communicationHandler) {
         this.message = message;
         this.delay = delay;
         this.communicationHandler = communicationHandler;

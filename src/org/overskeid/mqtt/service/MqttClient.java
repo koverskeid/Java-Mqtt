@@ -30,7 +30,7 @@ import org.overskeid.mqtt.packets.Subscription;
 /**
  * Created by Kristian on 07.11.2015.
  */
-public class MqttCommonucationHandler implements Runnable {
+public class MqttClient implements Runnable {
     private static final int MAXQUEUE = 10;
     private int expectedRTT = 1000;
     private Vector<Object> messages = new Vector<Object>();
@@ -40,12 +40,12 @@ public class MqttCommonucationHandler implements Runnable {
     private String clientId;
     private MqttOutStream outStream;
     private MqttInStream inStream;
-    private Hashtable<Integer,CheckAckTimer> unacknowledgedMessages = new Hashtable<Integer, CheckAckTimer>();
+    private Hashtable<Integer,ResendTimer> unacknowledgedMessages = new Hashtable<Integer, ResendTimer>();
     private boolean connectionEstablished = false;
     private Hashtable<String, Integer> subscribedTopics = new Hashtable<String, Integer>();
     private Vector<Integer> receivedQos2Messages = new Vector<Integer>();
 
-    public MqttCommonucationHandler(String address, int port, String clientId) {
+    public MqttClient(String address, int port, String clientId) {
     	this.port = port;
         this.address = address;
         this.clientId = clientId;
@@ -218,7 +218,7 @@ public class MqttCommonucationHandler implements Runnable {
     }
 
     private Object registerAck(int identifier) {
-    	CheckAckTimer timer = unacknowledgedMessages.get(identifier);
+    	ResendTimer timer = unacknowledgedMessages.get(identifier);
     	////System.out.println("cancelling "+identifier);
     	if(timer==null) {
     		System.out.println("Couldn't find id " + identifier);
@@ -326,6 +326,27 @@ public class MqttCommonucationHandler implements Runnable {
 		}
     }
     
+
+    public void unsubscribeTopic(String topic, int maxQos) {
+    	String[] topics = {topic};
+    	try {
+			send(new MqttUnsubsribe(topics));
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+    
+    public void unsubscribeTopics(String[] topics, int maxQos) {
+    	try {
+			send(new MqttUnsubsribe(topics));
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+    
+    
     private void send(Object message) throws InterruptedException {
         MqttMessage mqttMessage = (MqttMessage) message;
         if(mqttMessage.isAckRequired()) {
@@ -337,7 +358,7 @@ public class MqttCommonucationHandler implements Runnable {
         		mqttMessage.setPacketIdentifier(packetId);
         		//System.out.println("Sending message: "+packetId);
         	}
-        	CheckAckTimer ackTimer = new CheckAckTimer(message,expectedRTT,this);
+        	ResendTimer ackTimer = new ResendTimer(message,expectedRTT,this);
         	unacknowledgedMessages.put(packetId, ackTimer);
         	//System.out.println("putting message in unacknowledgedMessages: "+packetId);
         }

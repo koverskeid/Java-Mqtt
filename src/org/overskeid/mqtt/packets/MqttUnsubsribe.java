@@ -7,12 +7,7 @@ public class MqttUnsubsribe extends MqttMessage {
 	private static final byte byte1 = (byte) (162 & 0xFF);
 	private static final boolean ackRequired = true;
 	private ArrayList<String> topics = new ArrayList<String>();
-	
-	public MqttUnsubsribe(String topic) {
-		super(ackRequired);
-		this.topics.add(topic);
-	}
-	
+		
 	public MqttUnsubsribe(String[] topics) {
 		super(ackRequired);
 		for(String s : topics)
