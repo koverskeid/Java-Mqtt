@@ -235,13 +235,18 @@ public class MqttCommonucationHandler implements Runnable {
 
     protected void resendMessage(Object message) throws InterruptedException {
     	MqttMessage mqttMessage = (MqttMessage) message;
-    	//System.out.println("Resending message with id: "+ mqttMessage.getPacketIdentifier());
-    	unacknowledgedMessages.remove(mqttMessage.getPacketIdentifier());
+    	int packetId;
+    	if(mqttMessage instanceof MqttConnect)
+    		packetId = 0;
+    	else
+    		packetId = mqttMessage.getPacketIdentifier();
+    	unacknowledgedMessages.remove(packetId);
     	if(mqttMessage instanceof MqttPublish) {
     		MqttPublish mqttPublish = (MqttPublish) mqttMessage;
     		mqttPublish.setDuplicate(true);
     		message = mqttPublish;
     	}
+    	System.out.println("Resending message with id: "+ packetId);
     	sendMessage(message);
     }
 
