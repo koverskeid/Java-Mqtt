@@ -134,7 +134,7 @@ public class MqttCommonucationHandler implements Runnable {
 
     private void processPublish(Object message) {
         MqttPublish publish = (MqttPublish) message;
-        System.out.println("Received message with id: "+publish.getPacketIdentifier());
+        //System.out.println("Received message with id: "+publish.getPacketIdentifier());
         //System.out.println("qos: "+publish.getQos());
 			try {
 				if(publish.getQos()==0) {
@@ -154,8 +154,6 @@ public class MqttCommonucationHandler implements Runnable {
 						putPublishMessage(publish);
 						sendMessage(new MqttPubRec(packetId));
 					}
-					else
-						System.out.println("Message already in receivedMessages: "+packetId);
 				}
 					
 			} catch (InterruptedException e1) {
@@ -181,7 +179,7 @@ public class MqttCommonucationHandler implements Runnable {
     	MqttPubRec mqttPubReq = (MqttPubRec) message;
     	int packetId = mqttPubReq.getPacketIdentifier();
     	registerAck(packetId);
-    	System.out.println("Received pubRec: " +packetId);
+    	//System.out.println("Received pubRec: " +packetId);
     	try {
 			sendMessage(new MqttPubRel(packetId));
 		} catch (InterruptedException e) {
@@ -194,11 +192,11 @@ public class MqttCommonucationHandler implements Runnable {
     	MqttPubRel mqttPubRel = (MqttPubRel) message;
     	int packetId = mqttPubRel.getPacketIdentifier();
     	registerAck(packetId);
-    	System.out.println("Received pubRel: "+packetId);
+    	//System.out.println("Received pubRel: "+packetId);
     	for(Integer i :receivedQos2Messages) {
     		if(i.equals(packetId)) {
     			receivedQos2Messages.remove(i);
-    			////System.out.println("Removed from receivedMessages: "+packetId);
+    			//System.out.println("Removed from receivedMessages: "+packetId);
     			break;
     		}
     		
@@ -216,14 +214,14 @@ public class MqttCommonucationHandler implements Runnable {
     	MqttPubComp mqttPubComp = (MqttPubComp) message;
     	int packetId = mqttPubComp.getPacketIdentifier();
     	registerAck(packetId);
-    	System.out.println("Pubcomp registered: "+packetId);
+    	//System.out.println("Pubcomp registered: "+packetId);
     }
 
     private Object registerAck(int identifier) {
     	CheckAckTimer timer = unacknowledgedMessages.get(identifier);
     	////System.out.println("cancelling "+identifier);
     	if(timer==null) {
-    		//System.out.println("Couldn't find id " + identifier);
+    		System.out.println("Couldn't find id " + identifier);
     		return null;
     	}
     	else {
@@ -246,7 +244,7 @@ public class MqttCommonucationHandler implements Runnable {
     		mqttPublish.setDuplicate(true);
     		message = mqttPublish;
     	}
-    	System.out.println("Resending message with id: "+ packetId);
+    	//System.out.println("Resending message with id: "+ packetId);
     	sendMessage(message);
     }
 
