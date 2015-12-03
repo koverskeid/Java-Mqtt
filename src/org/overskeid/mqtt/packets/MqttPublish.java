@@ -94,11 +94,8 @@ public class MqttPublish extends MqttMessage{
 	@Override
 	void formatMessage() {
 		String binary = String.format("%8s", Integer.toBinaryString(message[0] & 0xFF)).replace(' ', '0');
-		System.out.println(binary);
         this.duplicate = binary.substring(4,5).equals("1");
-        qos = Integer.parseInt(binary.substring(5, 7));
-        for(byte b:message)
-        	System.out.print((b & 0xFF) +",");
+        qos = Integer.parseInt(binary.substring(5, 7),2);
         retain = binary.substring(7).equals("1");
         try {
             int remainingLength = remainingLength(1);

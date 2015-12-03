@@ -32,7 +32,7 @@ import org.overskeid.mqtt.packets.Subscription;
  */
 public class MqttCommonucationHandler implements Runnable {
     private static final int MAXQUEUE = 10;
-    private static final long expectedRTT = 5000;
+    private static final long expectedRTT = 1000;
     private Vector<Object> messages = new Vector<Object>();
     private Vector<MqttPublish> publishMessages = new Vector<MqttPublish>();
     private String address;
@@ -119,6 +119,7 @@ public class MqttCommonucationHandler implements Runnable {
 
     private void processSubAck(Object message) {
         MqttSubAck subAck = (MqttSubAck) message;
+        System.out.println("received subAck: "+subAck.getPacketIdentifier());
         MqttSubscribe mqttSubscribe = (MqttSubscribe) registerAck(subAck.getPacketIdentifier());
         Subscription[] subscriptions = mqttSubscribe.getSubscriptions();
         Integer[] returnCodes = subAck.getReturnCodes();
@@ -128,12 +129,13 @@ public class MqttCommonucationHandler implements Runnable {
         		subscribedTopics.put(subscriptions[i].getTopic(),returnCodes[i]);
         	}
         }
-        System.out.println("received subAck: "+subAck.getPacketIdentifier());
+        
     }
 
     private void processPublish(Object message) {
         MqttPublish publish = (MqttPublish) message;
         System.out.println("Received message with id: "+publish.getPacketIdentifier());
+        System.out.println("qos: "+publish.getQos());
 			try {
 				if(publish.getQos()==0) {
 					System.out.println("qos: "+publish.getQos());
@@ -145,7 +147,6 @@ public class MqttCommonucationHandler implements Runnable {
 					putPublishMessage(publish);
 				}
 				else if(publish.getQos()==2) {
-					System.out.println("qos: "+publish.getQos());
 					int packetId = publish.getPacketIdentifier();
 					if(!receivedQos2Messages.contains(packetId)) {
 						sendMessage(new MqttPubRec(packetId));
@@ -155,9 +156,6 @@ public class MqttCommonucationHandler implements Runnable {
 					}
 					else
 						System.out.println("Message already in receivedMessages: "+packetId);
-				}
-				else {
-					System.out.println("no qos: "+publish.getQos());
 				}
 					
 			} catch (InterruptedException e1) {
@@ -246,36 +244,44 @@ public class MqttCommonucationHandler implements Runnable {
     	sendMessage(message);
     }
 
-    protected synchronized void putMessage(Object message) throws InterruptedException {
-        while (messages.size() >= MAXQUEUE)
-            wait();
-        messages.addElement(message);
-        notify();
+    protected void putMessage(Object message) throws InterruptedException {
+        synchronized (messages) {
+        	while (messages.size() >= MAXQUEUE)
+                messages.wait();
+            messages.addElement(message);
+            messages.notify();
+		}
     }
 
-    private synchronized Object getMessage() throws InterruptedException {
-        notify();
-        while (messages.size() == 0)
-        	wait();
-        Object message = messages.firstElement();
-        messages.removeElement(message);
-        return message;
+    private Object getMessage() throws InterruptedException {
+    	synchronized (messages) {
+    		 while (messages.size() == 0)
+    	        	messages.wait();
+    	        Object message = messages.firstElement();
+    	        messages.removeElement(message);
+    	        messages.notify();
+    	        return message;
+		}  
     }
     
-    private synchronized void putPublishMessage(MqttPublish message) throws InterruptedException {
-        while (publishMessages.size() >= MAXQUEUE)
-            wait();
-        publishMessages.addElement(message);
-        notify();
+    private void putPublishMessage(MqttPublish message) throws InterruptedException {
+        synchronized (publishMessages) {
+        	while (publishMessages.size() >= MAXQUEUE)
+                publishMessages.wait();
+            publishMessages.addElement(message);
+            publishMessages.notify();
+		}
     }
 
-    public synchronized MqttPublish receiveMessage() throws InterruptedException {
-        notify();
-        while (publishMessages.size() == 0)
-            wait();
-        MqttPublish message = publishMessages.firstElement();
-        publishMessages.removeElement(message);
-        return message;
+    public MqttPublish receiveMessage() throws InterruptedException {
+        synchronized (publishMessages) {
+            while (publishMessages.size() == 0)
+                publishMessages.wait();
+            MqttPublish message = publishMessages.firstElement();
+            publishMessages.removeElement(message);
+            publishMessages.notify();
+            return message;	
+		}
     }
     
     public synchronized void waitForConnection() throws InterruptedException {
@@ -302,7 +308,7 @@ public class MqttCommonucationHandler implements Runnable {
         	}
         	CheckAckTimer ackTimer = new CheckAckTimer(message,expectedRTT,this);
         	unacknowledgedMessages.put(packetId, ackTimer);
-        	//System.out.println("putting message in unacknowledgedMessages: "+packetId);
+        	System.out.println("putting message in unacknowledgedMessages: "+packetId);
         }
         
         if(mqttMessage instanceof MqttDisconnect) {

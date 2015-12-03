@@ -23,7 +23,6 @@ public class MqttSubAck extends MqttMessage{
 		this.returnCodes = new Integer[message.length-3];
         for(int i=0;i<this.message.length-3;i++) {
             returnCodes[i] = this.message[i+3] & 0xFF;
-            System.out.println("ReturnCode: "+returnCodes[i]);
         }
 		
 	}

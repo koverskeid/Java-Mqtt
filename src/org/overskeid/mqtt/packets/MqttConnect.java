@@ -36,6 +36,7 @@ public class MqttConnect extends MqttMessage{
         this.passwordFlag = false;
         this.willRetain = false;
         this.willFlag = false;
+        this.cleanSession = true;
     }
 
     protected void createMessage() {
