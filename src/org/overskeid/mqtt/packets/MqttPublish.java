@@ -20,8 +20,6 @@ public class MqttPublish extends MqttMessage{
         this.topic = topic;
         this.payload = payload;
         this.qos = qos;
-        duplicate = false;
-        retain = false;
     }
 
     public MqttPublish(byte[] message) { //incoming

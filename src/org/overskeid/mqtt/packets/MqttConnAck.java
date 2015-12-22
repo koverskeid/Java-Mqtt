@@ -47,7 +47,6 @@ public class MqttConnAck extends MqttMessage{
 	@Override
 	protected void createMessage() {
 		// only incoming
-		
 	}
 
 }
