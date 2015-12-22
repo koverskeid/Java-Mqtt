@@ -7,7 +7,6 @@ import java.util.ArrayList;
  */
 public class MqttConnect extends MqttMessage{
     private static final boolean ackRequired = true;
-    private static final int standardKeepAlive = 180; //3 minutes
     private static final byte byte1 = (byte) (16 & 0xFF);
     private static final byte lengthMsb = (byte) (0 & 0xFF);
     private static final byte lengthLsb = (byte) (4 & 0xFF);
@@ -117,7 +116,7 @@ public class MqttConnect extends MqttMessage{
 
 	@Override
 	void formatMessage() {
-		// TODO Auto-generated method stub
+		//Only outgoing
 		
 	}
 }

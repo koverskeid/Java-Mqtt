@@ -8,17 +8,23 @@ public class MqttQosMessage extends MqttMessage{
 	public MqttQosMessage(boolean ackRequired, int packetIdentifier, byte byte1) {
 		super(ackRequired, packetIdentifier);
 		this.byte1 = byte1;
-		createMessage();
 	}
 	
 	public MqttQosMessage(byte[] message) {
 		super(message);
 		formatMessage();
 	}
+	
+    public byte[] getBytes() {
+        createMessage();
+        return this.message;
+    }
 
 	void formatMessage() {
 		extractPacketIdentifier();
 	}
+	
+	
 
 	@Override
 	protected void createMessage() {

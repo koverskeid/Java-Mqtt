@@ -14,7 +14,6 @@ public class MqttUnsubAck extends MqttMessage{
 	@Override
 	protected void createMessage() {
 		//Only incoming
-		
 	}
 
 }

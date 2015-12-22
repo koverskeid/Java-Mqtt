@@ -22,6 +22,7 @@ public class MqttInStream implements Runnable{
     public MqttInStream(Socket socket, MqttClient communicationHandler) {
     	this.socket = socket;
     	this.commonucationHandler = communicationHandler;
+    	new Thread(this).start();
 	}
 
     @Override

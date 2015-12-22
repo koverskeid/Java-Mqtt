@@ -6,10 +6,7 @@ import java.util.ArrayList;
  * Created by Kristian on 20.11.2015.
  */
 public abstract class MqttMessage {
-    public enum MessageType {
-        CONNECT, CONNACK, PUBLISH, PUBACK, PUBREC, PUBREL, PUBCOMP, SUBSCRIBE, SUBACK, UNSUBSCRIBE, UNSUBACK, PINREQ, PINGRESP, DISCONNECT
-    }
-
+    
     protected static final int maxRemainingLength = 268435455;
     public static final int maxPacketIdNb = 65536;
     private boolean ackRequired;
@@ -23,12 +20,26 @@ public abstract class MqttMessage {
     public MqttMessage(boolean ackRequired, int packetIdentifier) {
     	this.ackRequired = ackRequired;
     	this.packetIdentifier = packetIdentifier;
-    	createMessage();
     }
     
     public MqttMessage(byte[] message) {
     	this.message = message;
     	formatMessage();
+    }
+    
+    public void setPacketIdentifier(int packetId) {
+		this.packetIdentifier = packetId;
+	}
+    
+    public Integer getPacketIdentifier() {return packetIdentifier;}
+
+    public byte[] getBytes() {
+        createMessage();
+        return this.message;
+    }
+    
+    public boolean isAckRequired() {
+        return this.ackRequired;
     }
 
     protected byte[] createRemainingLengthField(int remainingLength) {
@@ -75,26 +86,12 @@ public abstract class MqttMessage {
         return message;
     }
 
-    public boolean isAckRequired() {
-        return this.ackRequired;
-    }
-
     protected void extractPacketIdentifier() {
     	this.packetIdentifier = message[2] & 0xFF | (message[1] & 0xFF) << 8;
     }
-    
+        
     protected abstract void createMessage();
-    
-    public Integer getPacketIdentifier() {return packetIdentifier;}
-
-    public byte[] getBytes() {
-        createMessage();
-        return this.message;
-    }
     
 	abstract void formatMessage();
 	
-	public void setPacketIdentifier(int packetId) {
-		this.packetIdentifier = packetId;
-	}
 }

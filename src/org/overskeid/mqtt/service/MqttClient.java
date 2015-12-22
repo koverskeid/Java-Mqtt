@@ -58,6 +58,7 @@ public class MqttClient implements Runnable {
     public MqttClient(String address, int port) {
     	this.port = port;
         this.address = address;
+        new Thread(this).start();
     }
 
     @Override
@@ -67,16 +68,12 @@ public class MqttClient implements Runnable {
             Socket socket = new Socket(inetAddress, port);
             inStream = new MqttInStream(socket, this);
             outStream = new MqttOutStream(socket);
-            readyToSend();
-            new Thread(inStream).start();
-            new Thread(outStream).start();
         } catch (UnknownHostException e) {
-            //System.out.println("unknown host");
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
 		}
-
+        setReadyToSend();
         while (true) {
             Object message = null;
             try {
@@ -352,7 +349,6 @@ public class MqttClient implements Runnable {
         	ResendTimer ackTimer = new ResendTimer(message,expectedRTT,this);
         	unacknowledgedMessages.put(packetId, ackTimer);
         }
-        
         if(mqttMessage instanceof MqttDisconnect) {
         	inStream.stop();
         	outStream.stop();
@@ -361,7 +357,7 @@ public class MqttClient implements Runnable {
         outStream.send(mqttMessage.getBytes());
     }
     
-    private synchronized void readyToSend() {
+    private synchronized void setReadyToSend() {
     	notify();
     }
     
@@ -425,9 +421,4 @@ public class MqttClient implements Runnable {
     	connectionEstablished = true;
     	notify();
     }
-
-    private void resetActivityTimer() {
-    	
-    }
-
 }

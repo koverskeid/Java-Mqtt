@@ -1,7 +1,5 @@
 package org.overskeid.mqtt.packets;
 
-import java.util.ArrayList;
-
 public class MqttDisconnect extends MqttMessage {
 
 	private final static boolean ackRequired = false;
@@ -22,7 +20,6 @@ public class MqttDisconnect extends MqttMessage {
 
 	@Override
 	void formatMessage() {
-		// TODO Auto-generated method stub
-		
+		//Only outgoing
 	}
 }

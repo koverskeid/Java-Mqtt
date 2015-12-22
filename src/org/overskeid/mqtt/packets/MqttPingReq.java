@@ -18,8 +18,7 @@ public class MqttPingReq extends MqttMessage{
 
 	@Override
 	void formatMessage() {
-		// TODO Auto-generated method stub
-		
+		//Only outgoing
 	}
 
 	

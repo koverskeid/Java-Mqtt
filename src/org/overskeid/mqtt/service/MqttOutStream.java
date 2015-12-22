@@ -21,7 +21,7 @@ public class MqttOutStream implements Runnable {
     public MqttOutStream(Socket socket) {
     	this.socket = socket;
     	this.messages = new Vector<byte[]>();
-    	
+    	new Thread(this).start();
     }
 
     @Override
